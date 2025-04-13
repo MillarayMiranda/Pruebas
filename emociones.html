@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+    <lnk href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+    <title>Estados de Ánimo</title>
+    <style>
+        /* Reset y estilos base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.5s ease, color 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Cabin Sketch', cursive, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        
+        /* Variables CSS para los temas */
+        :root {
+            --joy-bg: #fffda5;
+            --joy-accent: #ffe367;
+            --joy-text: #1A1A1D;
+            
+            --sadness-bg: #A4EBF3;
+            --sadness-accent: #43ddee;
+            --sadness-text: #1A1A1D;
+            
+            --anger-bg: #FF9393;
+            --anger-accent: #f76b6b;
+            --anger-text: #1A1A1D;
+            
+            --disgust-bg: #C9F2C7;
+            --disgust-accent: #8ee689;
+            --disgust-text: #1A1A1D;
+            
+            --fear-bg: #B2A5FF;
+            --fear-accent: #907ff0;
+            --fear-text: #1A1A1D;
+        }
+        
+        /* Contenedor principal */
+        .container {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        /* Título */
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+        }
+        
+        /* Selector de emociones */
+        .emotion-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .emotion-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: scale(1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .emotion-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        .emotion-btn:active {
+            transform: scale(0.98);
+        }
+        
+        /* Área de contenido emocional */
+        .emotion-content {
+            width: 90%;
+            max-width: 800px;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-top: 2rem;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .emotion-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .emotion-image {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+        
+        .emotion-quote {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .emotion-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .activity-suggestion {
+            background-color: rgba(255,255,255,0.3);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Efectos específicos para cada emoción */
+        /* Alegría */
+        .joy-theme {
+            background-color: var(--joy-bg);
+            color: var(--joy-text);
+        }
+        
+        .joy-theme .emotion-content {
+            background: linear-gradient(135deg, var(--joy-bg), #FFEE93);
+            border: 3px solid var(--joy-accent);
+        }
+        
+        .joy-theme .emotion-content::before {
+            background: radial-gradient(circle, var(--joy-accent) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .joy-btn {
+            background-color: var(--joy-accent);
+            color: rgb(163, 137, 5);
+        }
+        
+        /* Tristeza */
+        .sadness-theme {
+            background-color: var(--sadness-bg);
+            color: var(--sadness-text);
+        }
+        
+        .sadness-theme .emotion-content {
+            background: linear-gradient(135deg, var(--sadness-bg), #89CFF0);
+            border: 3px solid var(--sadness-accent);
+        }
+        
+        .sadness-theme .emotion-content::before {
+            background: linear-gradient(45deg, transparent 65%, var(--sadness-accent) 65%, var(--sadness-accent) 70%, transparent 70%),
+                        linear-gradient(-45deg, transparent 65%, var(--sadness-accent) 65%, var(--sadness-accent) 70%, transparent 70%);
+            background-size: 30px 30px;
+        }
+        
+        .sadness-btn {
+            background-color: var(--sadness-accent);
+            color: rgb(6, 91, 122);
+        }
+        
+        /* Ira */
+        .anger-theme {
+            background-color: var(--anger-bg);
+            color: var(--anger-text);
+        }
+        
+        .anger-theme .emotion-content {
+            background: linear-gradient(135deg, var(--anger-bg), #FF9E7D);
+            border: 3px solid var(--anger-accent);
+        }
+        
+        .anger-theme .emotion-content::before {
+            background: repeating-linear-gradient(0deg, transparent, transparent 10px, var(--anger-accent) 10px, var(--anger-accent) 12px);
+        }
+        
+        .anger-btn {
+            background-color: var(--anger-accent);
+            color: rgb(107, 39, 39);
+        }
+        
+        /* Desagrado */
+        .disgust-theme {
+            background-color: var(--disgust-bg);
+            color: var(--disgust-text);
+        }
+        
+        .disgust-theme .emotion-content {
+            background: linear-gradient(135deg, var(--disgust-bg), #C1FBA4);
+            border: 3px solid var(--disgust-accent);
+        }
+        
+        .disgust-theme .emotion-content::before {
+            background: repeating-radial-gradient(circle, var(--disgust-accent), var(--disgust-accent) 2px, transparent 2px, transparent 5px);
+            background-size: 20px 20px;
+        }
+        
+        .disgust-btn {
+            background-color: var(--disgust-accent);
+            color: rgb(5, 80, 16);
+        }
+        
+        /* Miedo */
+        .fear-theme {
+            background-color: var(--fear-bg);
+            color: var(--fear-text);
+        }
+        
+        .fear-theme .emotion-content {
+            background: linear-gradient(135deg, var(--fear-bg), #D9B8FF);
+            border: 3px solid var(--fear-accent);
+        }
+        
+        .fear-theme .emotion-content::before {
+            background: 
+                radial-gradient(circle at 25% 25%, var(--fear-accent) 1px, transparent 2px),
+                radial-gradient(circle at 75% 75%, var(--fear-accent) 1px, transparent 2px);
+            background-size: 30px 30px;
+        }
+        
+        .fear-btn {
+            background-color: var(--fear-accent);
+            color: rgb(45, 12, 102);
+        }
+        
+        /* Animaciones */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .joy-theme .emotion-image {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes wobble {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(2deg); }
+            75% { transform: rotate(-2deg); }
+        }
+        
+        .anger-theme .emotion-image {
+            animation: wobble 0.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .fear-theme .emotion-image {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        /* Pie de página */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .emotion-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .emotion-btn {
+                width: 80%;
+            }
+            
+            .emotion-content {
+                width: 95%;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="joy-theme">
+    <div class="container">
+        <h1>Tus Emociones</h1>
+        
+        <div class="emotion-selector">
+            <button class="emotion-btn joy-btn" onclick="changeEmotion('joy')">Alegría</button>
+            <button class="emotion-btn sadness-btn" onclick="changeEmotion('sadness')">Tristeza</button>
+            <button class="emotion-btn anger-btn" onclick="changeEmotion('anger')">Ira</button>
+            <button class="emotion-btn disgust-btn" onclick="changeEmotion('disgust')">Desagrado</button>
+            <button class="emotion-btn fear-btn" onclick="changeEmotion('fear')">Miedo</button>
+        </div>
+        
+        <div class="emotion-content">
+            <img id="emotion-img" class="emotion-image" src="https://media-public.canva.com/7fpa8/MAEi0e7fpa8/1/tl.png" alt="Alegría">
+            <p id="emotion-quote" class="emotion-quote">"La felicidad está en las pequeñas cosas"</p>
+            <p id="emotion-description" class="emotion-description">La alegría nos llena de energía positiva y nos hace ver la vida con optimismo. Cuando estás alegre, todo parece más brillante y lleno de posibilidades.</p>
+            <div id="activity-suggestion" class="activity-suggestion">¡Haz una lista de cosas que te hacen feliz y compártela con alguien especial!</div>
+        </div>
+    </div>
+    
+    <footer>
+        Inspirado en la película "Inside Out" de Pixar | Creado por Millaray Miranda
+    </footer>
+    
+    <script>
+        // Datos de cada emoción
+        const emotions = {
+            joy: {
+                img: "https://media-public.canva.com/7fpa8/MAEi0e7fpa8/1/tl.png",
+                quote: '"La felicidad está en las pequeñas cosas"',
+                description: "La alegría nos llena de energía positiva y nos hace ver la vida con optimismo. Cuando estás alegre, todo parece más brillante y lleno de posibilidades.",
+                activity: "¡Haz una lista de cosas que te hacen feliz y compártela con alguien especial!"
+            },
+            sadness: {
+                img: "https://media-public.canva.com/Mjs84/MAFFuaMjs84/1/tl.png",
+                quote: '"Está bien sentirse triste a veces"',
+                description: "La tristeza nos ayuda a procesar las pérdidas y los momentos difíciles. Permítete sentirla, porque es necesaria para sanar y crecer emocionalmente.",
+                activity: "Escribe en un diario cómo te sientes o habla con alguien de confianza."
+            },
+            anger: {
+                img: "https://media-public.canva.com/5sJ5o/MAFf915sJ5o/1/tl.png",
+                quote: '"El enojo puede ser una señal de que algo necesita cambiar"',
+                description: "La ira nos alerta sobre injusticias o situaciones que no nos hacen bien. Es importante expresarla de manera saludable, sin lastimar a otros ni a nosotros mismos.",
+                activity: "Prueba hacer ejercicio físico o técnicas de respiración para canalizar esta energía."
+            },
+            disgust: {
+                img: "https://media-public.canva.com/knxKM/MAFy8OknxKM/1/tl.png",
+                quote: '"El asco nos protege de lo que podría hacernos daño"',
+                description: "El desagrado nos ayuda a establecer límites y evitar situaciones o sustancias que podrían ser perjudiciales para nuestro bienestar físico o emocional.",
+                activity: "Reflexiona sobre qué está causando esta emoción y cómo puedes alejarte de ello."
+            },
+            fear: {
+                img: "https://media-public.canva.com/F4Lo4/MAFYS1F4Lo4/1/tl.png",
+                quote: '"El miedo nos prepara para enfrentar peligros"',
+                description: "El temor es un mecanismo de supervivencia que nos mantiene alerta. Reconocerlo nos permite evaluar riesgos reales y prepararnos adecuadamente.",
+                activity: "Identifica si tu miedo es real o imaginario y crea un plan para enfrentarlo gradualmente."
+            }
+        };
+        
+        // Cambiar emoción
+        function changeEmotion(emotion) {
+            // Cambiar clase del body para el tema
+            document.body.className = `${emotion}-theme`;
+            
+            // Actualizar contenido
+            document.getElementById('emotion-img').src = emotions[emotion].img;
+            document.getElementById('emotion-quote').textContent = emotions[emotion].quote;
+            document.getElementById('emotion-description').textContent = emotions[emotion].description;
+            document.getElementById('activity-suggestion').textContent = emotions[emotion].activity;
+            
+            // Efecto especial para ira
+            if (emotion === 'anger') {
+                document.querySelector('.emotion-content').style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    document.querySelector('.emotion-content').style.animation = '';
+                }, 500);
+            }
+        }
+        
+        // Efecto de temblor para ira
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

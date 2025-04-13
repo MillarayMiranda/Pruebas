@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify-Like Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos generales */
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #1e1e1e, #121212);
+            color: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .player-container {
+            width: 350px;
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Portada del álbum con efecto de vinilo */
+        .album-cover {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+        }
+
+        .album-cover img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .vinyl {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://i.imgur.com/3QZ2zQq.png') center no-repeat;
+            background-size: cover;
+            opacity: 0;
+            transition: opacity 0.3s, transform 2s linear;
+        }
+
+        .playing .vinyl {
+            opacity: 0.8;
+            transform: rotate(360deg);
+        }
+
+        /* Barra de progreso */
+        .progress-container {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin: 0 10px;
+            cursor: pointer;
+        }
+
+        #progress {
+            height: 100%;
+            background: linear-gradient(90deg, #1db954, #1ed760);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        /* Controles */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 25px 0;
+        }
+
+        .controls button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .controls button:hover {
+            transform: scale(1.1);
+        }
+
+        #play-btn {
+            background: #1db954;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Lista de canciones */
+        .playlist {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .song {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .song:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .song.active {
+            background: rgba(29, 185, 84, 0.2);
+        }
+
+        .song img {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            margin-right: 15px;
+        }
+
+        /* Efecto de ondas de sonido */
+        .sound-waves {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .playing .sound-waves {
+            opacity: 1;
+        }
+
+        .wave {
+            width: 4px;
+            height: 10px;
+            background: #1db954;
+            border-radius: 5px;
+            animation: wave 1.5s infinite ease-in-out;
+        }
+
+        .wave:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .wave:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes wave {
+            0%, 100% { height: 10px; }
+            50% { height: 25px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="player-container">
+        <!-- Portada del álbum -->
+        <div class="album-cover">
+            <img src="https://i.scdn.co/image/ab67616d0000b2734e5df11b17b2727da2b718d8" alt="Album Cover">
+            <div class="vinyl"></div>
+        </div>
+
+        <!-- Info de la canción -->
+        <div class="song-info">
+            <h1 id="song-title">Blinding Lights</h1>
+            <p id="artist">The Weeknd</p>
+        </div>
+
+        <!-- Barra de progreso -->
+        <div class="progress-container">
+            <span id="current-time">0:00</span>
+            <div class="progress-bar">
+                <div id="progress"></div>
+            </div>
+            <span id="duration">3:20</span>
+        </div>
+
+        <!-- Controles -->
+        <div class="controls">
+            <button id="prev-btn"><i class="fas fa-step-backward"></i></button>
+            <button id="play-btn"><i class="fas fa-play"></i></button>
+            <button id="next-btn"><i class="fas fa-step-forward"></i></button>
+        </div>
+
+        <!-- Lista de canciones -->
+        <div class="playlist">
+            <div class="song active" data-src="https://audio-url.mp3">
+                <img src="https://i.scdn.co/image/ab67616d0000b2734e5df11b17b2727da2b718d8" alt="Blinding Lights">
+                <div class="song-details">
+                    <h3>Blinding Lights</h3>
+                    <p>The Weeknd</p>
+                </div>
+            </div>
+            <div class="song" data-src="https://audio-url.mp3">
+                <img src="https://i.scdn.co/image/ab67616d0000b2733a13e12a04c28b5a6c8b6f1e" alt="Save Your Tears">
+                <div class="song-details">
+                    <h3>Save Your Tears</h3>
+                    <p>The Weeknd</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Efecto de ondas de sonido -->
+        <div class="sound-waves">
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+        </div>
+    </div>
+
+    <script>
+        // Variables
+        const songs = [
+            {
+                title: "Blinding Lights",
+                artist: "The Weeknd",
+                cover: "https://i.scdn.co/image/ab67616d0000b2734e5df11b17b2727da2b718d8",
+                audio: "https://audio-url.mp3"
+            },
+            {
+                title: "Save Your Tears",
+                artist: "The Weeknd",
+                cover: "https://i.scdn.co/image/ab67616d0000b2733a13e12a04c28b5a6c8b6f1e",
+                audio: "https://audio-url.mp3"
+            }
+        ];
+
+        const songTitle = document.getElementById("song-title");
+        const artist = document.getElementById("artist");
+        const currentTimeEl = document.getElementById("current-time");
+        const durationEl = document.getElementById("duration");
+        const progress = document.getElementById("progress");
+        const progressBar = document.querySelector(".progress-bar");
+        const playBtn = document.getElementById("play-btn");
+        const prevBtn = document.getElementById("prev-btn");
+        const nextBtn = document.getElementById("next-btn");
+        const albumCover = document.querySelector(".album-cover");
+        const playerContainer = document.querySelector(".player-container");
+        const playlistSongs = document.querySelectorAll(".playlist .song");
+
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        const audio = new Audio();
+
+        // Funciones
+        function loadSong(song) {
+            songTitle.textContent = song.title;
+            artist.textContent = song.artist;
+            albumCover.querySelector("img").src = song.cover;
+            audio.src = song.audio;
+        }
+
+        function playSong() {
+            isPlaying = true;
+            playerContainer.classList.add("playing");
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            audio.play();
+        }
+
+        function pauseSong() {
+            isPlaying = false;
+            playerContainer.classList.remove("playing");
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            audio.pause();
+        }
+
+        function prevSong() {
+            currentSongIndex--;
+            if (currentSongIndex < 0) {
+                currentSongIndex = songs.length - 1;
+            }
+            loadSong(songs[currentSongIndex]);
+            if (isPlaying) playSong();
+            updateActiveSong();
+        }
+
+        function nextSong() {
+            currentSongIndex++;
+            if (currentSongIndex > songs.length - 1) {
+                currentSongIndex = 0;
+            }
+            loadSong(songs[currentSongIndex]);
+            if (isPlaying) playSong();
+            updateActiveSong();
+        }
+
+        function updateProgress(e) {
+            const { duration, currentTime } = e.srcElement;
+            const progressPercent = (currentTime / duration) * 100;
+            progress.style.width = `${progressPercent}%`;
+
+            // Formatear tiempo
+            const durationMinutes = Math.floor(duration / 60);
+            let durationSeconds = Math.floor(duration % 60);
+            if (durationSeconds < 10) durationSeconds = `0${durationSeconds}`;
+
+            if (duration) {
+                durationEl.textContent = `${durationMinutes}:${durationSeconds}`;
+            }
+
+            const currentMinutes = Math.floor(currentTime / 60);
+            let currentSeconds = Math.floor(currentTime % 60);
+            if (currentSeconds < 10) currentSeconds = `0${currentSeconds}`;
+            currentTimeEl.textContent = `${currentMinutes}:${currentSeconds}`;
+        }
+
+        function setProgress(e) {
+            const width = this.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audio.duration;
+            audio.currentTime = (clickX / width) * duration;
+        }
+
+        function updateActiveSong() {
+            playlistSongs.forEach(song => song.classList.remove("active"));
+            playlistSongs[currentSongIndex].classList.add("active");
+        }
+
+        // Event Listeners
+        playBtn.addEventListener("click", () => {
+            isPlaying ? pauseSong() : playSong();
+        });
+
+        prevBtn.addEventListener("click", prevSong);
+        nextBtn.addEventListener("click", nextSong);
+
+        audio.addEventListener("timeupdate", updateProgress);
+        audio.addEventListener("ended", nextSong);
+
+        progressBar.addEventListener("click", setProgress);
+
+        // Cargar primera canción
+        loadSong(songs[currentSongIndex]);
+
+        // Seleccionar canción de la playlist
+        playlistSongs.forEach((song, index) => {
+            song.addEventListener("click", () => {
+                currentSongIndex = index;
+                loadSong(songs[currentSongIndex]);
+                playSong();
+                updateActiveSong();
+            });
+        });
+    </script>
+</body>
+</html>
